@@ -79,7 +79,23 @@ class DataStore:
             try:
                 with open(DATA_FILE, "r") as f:
                     data = json.load(f)
-                self.policies = data.get("policies", self.policies)
+                
+                loaded_policies = data.get("policies", {})
+                for platform, policy_data in loaded_policies.items():
+                    if platform in self.policies:
+                        # If it's an old flat structure (missing 'thresholds' key)
+                        if "thresholds" not in policy_data:
+                            self.policies[platform]["thresholds"].update({
+                                k: v for k, v in policy_data.items() 
+                                if k in self.policies[platform]["thresholds"]
+                            })
+                        else:
+                            # It's the new nested structure
+                            self.policies[platform]["thresholds"].update(policy_data.get("thresholds", {}))
+                            self.policies[platform]["category_toggles"].update(policy_data.get("category_toggles", {}))
+                            if "custom_rules" in policy_data:
+                                self.policies[platform]["custom_rules"] = policy_data["custom_rules"]
+
                 self.queue = data.get("queue", self.queue)
                 self.audit_log = data.get("audit_log", self.audit_log)
                 self.feedback_log = data.get("feedback_log", self.feedback_log)
