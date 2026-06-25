@@ -27,7 +27,10 @@ const PolicySettings = ({ policies, refreshState, platforms }) => {
       ...localPolicies,
       [platform]: {
         ...localPolicies[platform],
-        [category]: parseInt(value)
+        thresholds: {
+          ...localPolicies[platform]?.thresholds,
+          [category]: parseInt(value)
+        }
       }
     });
   };
@@ -84,7 +87,7 @@ const PolicySettings = ({ policies, refreshState, platforms }) => {
             </h3>
             
             {categories.map(cat => {
-              const threshold = localPolicies[platform]?.[cat] || 0;
+              const threshold = localPolicies[platform]?.thresholds?.[cat] || 0;
               return (
                 <div key={cat} style={{marginBottom: '1rem'}}>
                   <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem'}}>
